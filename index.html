@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文言文推與敲 - 第39篇 穿胸國 (模擬試題)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;700&display=swap');
+        
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #fff7ed; /* orange-50 */
+        }
+        
+        .serif {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .option-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(234, 88, 12, 0.2), 0 2px 4px -1px rgba(234, 88, 12, 0.1);
+        }
+        
+        /* Custom scrollbar for review list */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff7ed;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fdba74;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f97316;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col text-gray-800 selection:bg-orange-200">
+
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-orange-600 to-amber-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-xl font-bold tracking-wider flex items-center gap-2" onclick="goHome()" style="cursor: pointer;">
+                <i class="fas fa-scroll text-amber-200"></i>
+                <span>穿胸國</span>
+            </h1>
+            
+            <div id="user-display" class="hidden flex items-center gap-3">
+                <div class="text-sm bg-white/20 px-3 py-1 rounded-full flex items-center backdrop-blur-sm">
+                    <i class="fas fa-user mr-2 text-amber-200"></i>
+                    <span id="username-span" class="font-medium"></span>
+                </div>
+                <button onclick="logout()" class="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded transition shadow-sm" title="登出並返回首頁">
+                    <i class="fas fa-sign-out-alt mr-1"></i>登出
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6 max-w-3xl">
+        
+        <!-- View: Login -->
+        <div id="view-login" class="fade-in max-w-md mx-auto bg-white rounded-2xl shadow-xl overflow-hidden mt-6 border-t-4 border-orange-500">
+            <div class="p-8">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-3 rounded-full bg-orange-100 text-orange-600 mb-3">
+                        <i class="fas fa-book-reader text-3xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-1">文言文推與敲</h2>
+                    <p class="text-orange-600 font-medium">第39篇 穿胸國</p>
+                    <p class="text-gray-400 text-sm mt-2">全真模擬試題 • 自動記錄進度</p>
+                </div>
+                
+                <div class="space-y-5">
+                    <div>
+                        <label for="username" class="block text-sm font-bold text-gray-700 mb-2">請輸入姓名開始</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-pencil-alt text-gray-400"></i>
+                            </div>
+                            <input type="text" id="username" 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-all bg-gray-50 focus:bg-white" 
+                                placeholder="例如：王小明"
+                                onkeypress="if(event.key === 'Enter') startQuiz()">
+                        </div>
+                    </div>
+                    
+                    <button onclick="startQuiz()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 px-4 rounded-lg transition duration-200 font-bold shadow-md hover:shadow-lg transform active:scale-95">
+                        開始測驗 <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+
+                    <!-- Quick Login Section -->
+                    <div id="quick-login-area" class="hidden pt-4 border-t border-gray-100">
+                        <p class="text-xs text-gray-500 mb-3 font-medium">快速登入（最近使用）</p>
+                        <div id="recent-users-list" class="flex flex-wrap gap-2">
+                            <!-- Buttons injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-6">
+                        <button onclick="clearData()" class="text-xs text-gray-400 hover:text-red-500 underline transition">清除本機所有紀錄</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Quiz -->
+        <div id="view-quiz" class="hidden fade-in">
+            <!-- Progress Bar -->
+            <div class="mb-6 flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-orange-100">
+                <div class="flex items-center space-x-3">
+                    <div class="flex items-baseline space-x-1">
+                        <span class="text-3xl font-bold text-orange-600" id="current-question-num">1</span>
+                        <span class="text-gray-400 text-lg">/</span>
+                        <span class="text-gray-500 text-sm font-medium">25</span>
+                    </div>
+                    <div class="h-2 w-24 bg-gray-100 rounded-full overflow-hidden ml-2 hidden sm:block">
+                        <div id="progress-bar-fill" class="h-full bg-orange-500 transition-all duration-300" style="width: 5%"></div>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="toggleFavorite()" id="btn-favorite" class="text-gray-300 hover:text-amber-500 transition p-2 rounded-full hover:bg-amber-50" title="加入最愛">
+                        <i class="far fa-star text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Question Card -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 border border-gray-100">
+                <div class="p-6 md:p-8">
+                    <div class="mb-6">
+                        <span class="inline-block bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-md font-bold mb-3 tracking-wide" id="q-category">字義</span>
+                        <h3 class="text-xl md:text-2xl font-medium text-gray-800 leading-relaxed serif" id="q-text">題目載入中...</h3>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="space-y-3" id="options-container">
+                        <!-- Options generated by JS -->
+                    </div>
+                </div>
+                
+                <!-- Explanation Area -->
+                <div id="explanation-area" class="hidden bg-amber-50 border-t border-amber-100 p-6 md:p-8">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mt-1">
+                            <i id="feedback-icon" class="fas fa-check-circle text-green-500 text-2xl"></i>
+                        </div>
+                        <div class="ml-4 w-full">
+                            <h4 class="text-lg font-bold text-gray-900 mb-2" id="feedback-title">答對了！</h4>
+                            <div class="text-gray-700 text-base leading-relaxed mb-6 bg-white p-4 rounded-lg border border-amber-100 shadow-sm" id="feedback-text">
+                                解析內容...
+                            </div>
+                            <button onclick="nextQuestion()" class="w-full sm:w-auto bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition shadow font-medium flex items-center justify-center">
+                                下一題 <i class="fas fa-chevron-right ml-2"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Result -->
+        <div id="view-result" class="hidden fade-in max-w-2xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden text-center p-8 border-t-8 border-orange-500">
+                <div class="mb-8">
+                    <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-orange-50 mb-4 ring-4 ring-orange-100">
+                        <i class="fas fa-trophy text-4xl text-orange-500"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">測驗完成！</h2>
+                    <p class="text-gray-500">恭喜您完成了所有題目，以下是您的成績</p>
+                </div>
+
+                <div class="grid grid-cols-3 gap-4 mb-8">
+                    <div class="bg-orange-50 p-5 rounded-xl border border-orange-100">
+                        <div class="text-4xl font-bold text-orange-600 mb-1" id="result-score">0</div>
+                        <div class="text-xs text-orange-400 uppercase tracking-wider font-bold">總分</div>
+                    </div>
+                    <div class="bg-green-50 p-5 rounded-xl border border-green-100">
+                        <div class="text-4xl font-bold text-green-600 mb-1" id="result-correct">0</div>
+                        <div class="text-xs text-green-500 uppercase tracking-wider font-bold">答對</div>
+                    </div>
+                    <div class="bg-red-50 p-5 rounded-xl border border-red-100 cursor-pointer hover:bg-red-100 transition group" onclick="showReview('wrong')">
+                        <div class="text-4xl font-bold text-red-600 mb-1 group-hover:scale-110 transition-transform" id="result-wrong">0</div>
+                        <div class="text-xs text-red-400 uppercase tracking-wider font-bold">錯題 (點擊複習)</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center gap-3">
+                    <button onclick="restartQuiz()" class="px-6 py-3 border-2 border-gray-200 rounded-lg text-gray-600 hover:bg-gray-50 hover:border-gray-300 font-bold transition">
+                        <i class="fas fa-redo mr-2"></i>重新測驗
+                    </button>
+                    <button onclick="showReview('wrong')" class="px-6 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 font-bold transition">
+                        <i class="fas fa-times-circle mr-2"></i>複習錯題
+                    </button>
+                    <button onclick="showReview('favorite')" class="px-6 py-3 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 font-bold transition">
+                        <i class="fas fa-star mr-2"></i>我的最愛
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Review List -->
+        <div id="view-review" class="hidden fade-in">
+            <div class="flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm">
+                <div class="flex items-center gap-3">
+                    <div class="bg-orange-100 p-2 rounded-lg">
+                        <i class="fas fa-book-open text-orange-600"></i>
+                    </div>
+                    <h2 class="text-xl font-bold text-gray-800" id="review-title">錯題本</h2>
+                </div>
+                <button onclick="backToResult()" class="text-gray-500 hover:text-orange-600 font-bold transition flex items-center bg-gray-50 px-3 py-2 rounded-lg hover:bg-orange-50">
+                    <i class="fas fa-arrow-left mr-2"></i> 返回成績單
+                </button>
+            </div>
+            <div id="review-list" class="space-y-6 pb-10">
+                <!-- Review Items -->
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-white border-t border-orange-100 mt-auto py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-gray-500 font-medium mb-2">文言文推與敲 - 穿胸國</p>
+            <p class="text-gray-400 text-xs">&copy; 2025 道明中學國二國文模擬試題</p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Data Configuration ---
+        // 使用新的 Prefix 區隔不同篇章
+        const DB_PREFIX = 'ChineseClassicalQuiz-039-';
+        
+        // --- Questions Data (穿胸國) ---
+        // 內容來源：李汝珍《鏡花緣》
+        /*
+          走了幾日，過了穿胸國。林之洋道：「俺聞人心生在正中。今穿胸國胸都穿通，他心生在什麼地方？」
+          多九公道：「老夫聞他們胸前當日原是好好的；後來因他們行為不正，每每遇事把眉頭一皺，心就歪在一邊，或偏在一邊。
+          今日也歪，明日也偏，漸漸心離本位，胸無主宰。因此前心生一大疔，名叫『歪心疔』，後心生一大疽，名叫『偏心疽』：日漸潰爛。
+          久而久之，前後相通，醫藥無效。虧得有一祝由科用符咒將『中山狼』、『波斯狗』的心肺取來補那患處。
+          過了幾時，病雖醫好，誰知這狼的心，狗的肺，也是歪在一邊、偏在一邊的，任他醫治，胸前竟難復舊，所以至今仍是一個大洞。」
+          林之洋：「原來狼心狗肺都是又歪又偏的！」
+        */
+
+        const questionsData = [
+            {
+                id: 1,
+                category: "詞語釋義",
+                question: "多九公提到「胸無主宰」，這裡的「主宰」在文中引申為何意？",
+                options: [
+                    "心臟跳動的節奏",
+                    "國家的君王",
+                    "是非善惡的標準（良知）",
+                    "身體的靈魂"
+                ],
+                answer: 2, // C
+                explanation: "「主宰」本指主掌、支配，在此指心中的道德準則或良知。因為心偏離了本位，人就失去了判斷是非的良知。"
+            },
+            {
+                id: 2,
+                category: "文化知識",
+                question: "文中提到的「祝由科」，在古代醫學中主要屬於哪一類治療方式？",
+                options: [
+                    "外科手術",
+                    "針灸推拿",
+                    "符咒祈禱的精神療法",
+                    "草藥熬煮的內科療法"
+                ],
+                answer: 2, // C
+                explanation: "「祝由科」是古代以祝禱、符咒治病的科別，類似今日的心理或精神療法，但在古時帶有巫術色彩。"
+            },
+            {
+                id: 3,
+                category: "文意推論",
+                question: "根據多九公的說法，穿胸國人之所以會有「穿胸」之疾，其根本原因為何？",
+                options: [
+                    "感染了不知名的瘟疫",
+                    "因為施行外科手術失敗",
+                    "長期行為不正，心術偏差",
+                    "被中山狼與波斯狗咬傷"
+                ],
+                answer: 2, // C
+                explanation: "文中明確提到「後來因他們行為不正...心就歪在一邊」，這是將道德敗壞具象化為生理疾病。"
+            },
+            {
+                id: 4,
+                category: "典故寓意",
+                question: "文中特別提到使用「中山狼」的心肺。關於「中山狼」的典故，下列敘述何者正確？",
+                options: [
+                    "比喻英勇善戰的將士",
+                    "比喻忘恩負義的人",
+                    "比喻貪得無厭的小人",
+                    "比喻虛張聲勢的懦夫"
+                ],
+                answer: 1, // B
+                explanation: "「中山狼」典出《東郭先生與狼》，狼被東郭先生所救卻反過來要吃他，後世用以比喻忘恩負義之人。"
+            },
+            {
+                id: 5,
+                category: "修辭技巧",
+                question: "「林之洋：『原來狼心狗肺都是又歪又偏的！』」這句話運用了什麼修辭技巧？",
+                options: [
+                    "倒反",
+                    "雙關",
+                    "誇飾",
+                    "轉化"
+                ],
+                answer: 1, // B
+                explanation: "這是一語雙關。表面上說動物的器官位置不正，實際上是在罵那些沒良心（狼心狗肺）的人，其心術都是不正的。"
+            },
+            {
+                id: 6,
+                category: "字詞解釋",
+                question: "「後心生一大疽」的「疽」，讀音與意思為何？",
+                options: [
+                    "ㄐㄩ，毒瘡",
+                    "ㄗㄨˇ，阻礙",
+                    "ㄑㄩ，彎曲",
+                    "ㄉㄢˋ，疾病"
+                ],
+                answer: 0, // A
+                explanation: "疽（ㄐㄩ）：中醫上指一種毒瘡，多生於皮肉深處，甚至傷及筋骨。"
+            },
+            {
+                id: 7,
+                category: "文句因果",
+                question: "穿胸國人的病「醫藥無效」，最後是「虧得」什麼方法才暫時治好？",
+                options: [
+                    "自我反省，改過向善",
+                    "尋得神醫華佗進行換心手術",
+                    "祝由科用符咒移植狼心狗肺",
+                    "服用長生不老藥"
+                ],
+                answer: 2, // C
+                explanation: "文中提到「虧得有一祝由科用符咒將『中山狼』、『波斯狗』的心肺取來補那患處」。"
+            },
+            {
+                id: 8,
+                category: "深層寓意",
+                question: "作者安排「狼心狗肺」來修補穿胸國人的胸口，其諷刺意涵為何？",
+                options: [
+                    "暗示動物的器官比人類的更強壯",
+                    "諷刺這些人已經喪盡天良，與禽獸無異",
+                    "說明古代醫術高明，可以跨物種移植",
+                    "強調穿胸國人熱愛動物，與自然合一"
+                ],
+                answer: 1, // B
+                explanation: "這是強烈的諷刺，暗示這些「心術不正」的人，其內在早已如同狼狗般殘忍、忘恩負義，已經不配擁有「人心」。"
+            },
+            {
+                id: 9,
+                category: "文法結構",
+                question: "「每每遇事把眉頭一皺」句中，「每每」一詞的詞性與意思為？",
+                options: [
+                    "名詞，每個人",
+                    "動詞，每日",
+                    "副詞，往往、經常",
+                    "形容詞，美好的"
+                ],
+                answer: 2, // C
+                explanation: "「每每」為副詞，表示頻率，意指「往往」、「經常」。"
+            },
+            {
+                id: 10,
+                category: "細節觀察",
+                question: "根據多九公的描述，為什麼換了狼心狗肺後，胸前「仍是一個大洞」？",
+                options: [
+                    "因為手術技術不好，縫合不全",
+                    "因為狼心狗肺本身也是歪的、偏的，填不滿正中的位置",
+                    "因為符咒失效了",
+                    "因為穿胸國人故意留著洞展示"
+                ],
+                answer: 1, // B
+                explanation: "文中說：「誰知這狼的心，狗的肺，也是歪在一邊、偏在一邊的，任他醫治，胸前竟難復舊」。因為器官不正，無法填補原本居中的空缺。"
+            },
+            {
+                id: 11,
+                category: "人物稱謂",
+                question: "林之洋自稱「俺」，多九公自稱「老夫」。這反映了兩人的什麼關係或身分差異？",
+                options: [
+                    "「俺」是皇帝自稱，「老夫」是臣子自稱",
+                    "林之洋較豪爽或地位較低（商販），多九公較年長或有學問",
+                    "兩者都是謙詞，沒有差別",
+                    "「俺」是南方方言，「老夫」是北方方言"
+                ],
+                answer: 1, // B
+                explanation: "「俺」常見於市井或豪爽之人的口語（林之洋是商人）；「老夫」則是年長男子的自稱，多九公博學多聞，故以此自居。"
+            },
+            {
+                id: 12,
+                category: "詞語比較",
+                question: "「歪心疔」與「偏心疽」，這兩個病名暗示了穿胸國人具有什麼樣的性格缺陷？",
+                options: [
+                    "優柔寡斷",
+                    "偏私不公，心術不正",
+                    "膽小如鼠",
+                    "剛愎自用"
+                ],
+                answer: 1, // B
+                explanation: "「歪」與「偏」皆指不公正、不正派。暗示其性格偏私、心術不正。"
+            },
+            {
+                id: 13,
+                category: "文學常識",
+                question: "本文選自《鏡花緣》，這是一部什麼類型的章回小說？",
+                options: [
+                    "歷史演義小說（如三國演義）",
+                    "英雄傳奇小說（如水滸傳）",
+                    "諷刺遊記小說（如格列佛遊記）",
+                    "神魔志怪小說（如封神榜）"
+                ],
+                answer: 2, // C
+                explanation: "《鏡花緣》藉由唐敖等人遊歷海外各國的見聞，諷刺當時的社會現象，屬於諷刺遊記小說。"
+            },
+            {
+                id: 14,
+                category: "成語應用",
+                question: "下列哪一個成語最適合用來形容穿胸國人原本的行為特徵？",
+                options: [
+                    "大公無私",
+                    "心懷鬼胎",
+                    "光明磊落",
+                    "宅心仁厚"
+                ],
+                answer: 1, // B
+                explanation: "文中描述他們「行為不正」、「心歪偏」，與「心懷鬼胎」（藏著不可告人的壞主意）意近。"
+            },
+            {
+                id: 15,
+                category: "文意解讀",
+                question: "「漸漸心離本位」中的「本位」，除了指心臟原本的位置，也隱喻了什麼？",
+                options: [
+                    "做人的基本道理與正道",
+                    "社會的階級地位",
+                    "原本的家鄉",
+                    "身體的重心"
+                ],
+                answer: 0, // A
+                explanation: "「本位」在此雙關：生理上指正中間的位置，道德上指做人應有的正道與中庸。"
+            },
+            {
+                id: 16,
+                category: "情節邏輯",
+                question: "「每每遇事把眉頭一皺」，這個動作在文中導致了什麼後果？",
+                options: [
+                    "產生了深刻的皺紋",
+                    "引起了頭痛",
+                    "導致心臟歪斜",
+                    "讓別人感到害怕"
+                ],
+                answer: 2, // C
+                explanation: "文中說「每每遇事把眉頭一皺，心就歪在一邊」。這裡的皺眉暗示著算計或不滿，導致心的偏離。"
+            },
+            {
+                id: 17,
+                category: "詞語代換",
+                question: "「久而久之，前後相通。」句中的「相通」若換成下列何詞，語意最為通順且符合病理描述？",
+                options: [
+                    "溝通",
+                    "貫穿",
+                    "連結",
+                    "交流"
+                ],
+                answer: 1, // B
+                explanation: "「前後相通」指胸前胸後爛穿了，形成一個洞，「貫穿」最能精確描述這種物理狀態。"
+            },
+            {
+                id: 18,
+                category: "寫作風格",
+                question: "關於本文的寫作特色，下列分析何者正確？",
+                options: [
+                    "語言華麗，大量使用駢文",
+                    "說理嚴肅，引用儒家經典",
+                    "想像奇特，藉生理特徵諷刺人性",
+                    "寫實紀錄，詳細考證地理風俗"
+                ],
+                answer: 2, // C
+                explanation: "李汝珍以誇張奇特的想像（心爛穿胸、換狼心），來具象化抽象的道德問題，達到諷刺效果。"
+            },
+            {
+                id: 19,
+                category: "詞義推敲",
+                question: "「虧得有一祝由科」的「虧得」，意思為何？",
+                options: [
+                    "損失了",
+                    "幸虧、多虧",
+                    "責怪",
+                    "愧對"
+                ],
+                answer: 1, // B
+                explanation: "「虧得」表示幸好有某種條件或幫助，即「多虧」、「幸虧」。"
+            },
+            {
+                id: 20,
+                category: "文意理解",
+                question: "「日漸潰爛」的主詞是什麼？",
+                options: [
+                    "那顆歪掉的心",
+                    "歪心疔與偏心疽（患處）",
+                    "中山狼與波斯狗",
+                    "穿胸國的國運"
+                ],
+                answer: 1, // B
+                explanation: "承接上文「名叫『歪心疔』...名叫『偏心疽』」，接著說「日漸潰爛」，指的就是這些瘡毒潰爛。"
+            },
+            {
+                id: 21,
+                category: "邏輯推演",
+                question: "如果穿胸國人能夠「心回正位」，根據文中的邏輯，他們的病可能會如何？",
+                options: [
+                    "依然無法痊癒，因為洞已經形成了",
+                    "可能不藥而癒，因為病由心生",
+                    "會更加嚴重，因為心臟會排斥",
+                    "必須依靠更強的符咒才能好"
+                ],
+                answer: 1, // B
+                explanation: "既然病因是「行為不正、心離本位」，邏輯上若能心正，病源消除，則可能痊癒。這是傳統「病由心生」的觀念。"
+            },
+            {
+                id: 22,
+                category: "成語辨析",
+                question: "下列哪組成語的關係與「歪心疔」對「偏心疽」的關係最相似（皆為同義或近義的負面詞）？",
+                options: [
+                    "狼心狗肺 ／ 沒齒難忘",
+                    "口蜜腹劍 ／ 笑裡藏刀",
+                    "光明正大 ／ 鬼鬼祟祟",
+                    "雪中送炭 ／ 錦上添花"
+                ],
+                answer: 1, // B
+                explanation: "「歪心」與「偏心」皆指心術不正，「疔」與「疽」皆指毒瘡，兩者並列加強語氣。(B)「口蜜腹劍」與「笑裡藏刀」皆形容陰險狡詐，性質相似。"
+            },
+            {
+                id: 23,
+                category: "社會觀察",
+                question: "作者透過「穿胸國」的故事，最可能是在批評當時社會的哪種現象？",
+                options: [
+                    "醫療技術落後，迷信巫術",
+                    "人們營養不良，身體虛弱",
+                    "世人多偏私算計，缺乏公正之心",
+                    "官員貪汙腐敗，剝削百姓"
+                ],
+                answer: 2, // C
+                explanation: "整個故事圍繞著「歪」、「偏」二字，直指人心的偏私與算計。"
+            },
+            {
+                id: 24,
+                category: "文本比較",
+                question: "《山海經》中也有「貫胸國」的記載，但僅描述其外貌。《鏡花緣》此文與之相比，最大的創新在於？",
+                options: [
+                    "增加了地理位置的經緯度",
+                    "賦予了生理特徵背後的道德成因（寓意化）",
+                    "將穿胸人描寫得更英俊",
+                    "證明了穿胸國真實存在"
+                ],
+                answer: 1, // B
+                explanation: "《山海經》多為客觀（或神話式）的紀錄形貌，李汝珍則賦予其「因果報應」與「道德諷刺」的內涵。"
+            },
+            {
+                id: 25,
+                category: "綜合測驗",
+                question: "關於文中「人心生在正中」這句話，下列理解何者最為深刻？",
+                options: [
+                    "這是一個解剖學上的錯誤知識",
+                    "這是為了引出後文「心歪」的道德對比",
+                    "這說明林之洋不懂醫學",
+                    "這暗示穿胸國人與普通人構造不同"
+                ],
+                answer: 1, // B
+                explanation: "林之洋這句話是為了建立一個標準（正中＝公正/正常），以此反襯穿胸國人的異常（歪偏＝不公/病態），服務於全篇的寓意。"
+            }
+        ];
+
+        // --- State Management ---
+        let currentState = {
+            username: '',
+            questionIndex: 0,
+            answers: {}, // { questionId: selectedOptionIndex }
+            mistakes: [], // array of question IDs
+            favorites: [], // array of question IDs
+            isFinished: false
+        };
+
+        // --- DOM Elements ---
+        const views = {
+            login: document.getElementById('view-login'),
+            quiz: document.getElementById('view-quiz'),
+            result: document.getElementById('view-result'),
+            review: document.getElementById('view-review')
+        };
+        
+        const ui = {
+            usernameInput: document.getElementById('username'),
+            userDisplay: document.getElementById('user-display'),
+            usernameSpan: document.getElementById('username-span'),
+            quickLoginArea: document.getElementById('quick-login-area'),
+            recentUsersList: document.getElementById('recent-users-list'),
+            currentQNum: document.getElementById('current-question-num'),
+            progressBarFill: document.getElementById('progress-bar-fill'),
+            btnFavorite: document.getElementById('btn-favorite'),
+            qCategory: document.getElementById('q-category'),
+            qText: document.getElementById('q-text'),
+            optionsContainer: document.getElementById('options-container'),
+            explanationArea: document.getElementById('explanation-area'),
+            feedbackIcon: document.getElementById('feedback-icon'),
+            feedbackTitle: document.getElementById('feedback-title'),
+            feedbackText: document.getElementById('feedback-text'),
+            resultScore: document.getElementById('result-score'),
+            resultCorrect: document.getElementById('result-correct'),
+            resultWrong: document.getElementById('result-wrong'),
+            reviewList: document.getElementById('review-list'),
+            reviewTitle: document.getElementById('review-title')
+        };
+
+        // --- Storage Helpers ---
+        function getStorageKey(type, username) {
+            if (username) return DB_PREFIX + type + '-' + username;
+            return DB_PREFIX + type; // Global or list keys
+        }
+
+        // --- Initialization ---
+        function init() {
+            renderRecentUsers();
+        }
+
+        function renderRecentUsers() {
+            const users = JSON.parse(localStorage.getItem(getStorageKey('users')) || '[]');
+            
+            if (users.length > 0) {
+                ui.quickLoginArea.classList.remove('hidden');
+                ui.recentUsersList.innerHTML = '';
+                users.forEach(user => {
+                    const btn = document.createElement('button');
+                    btn.className = 'px-3 py-1.5 bg-orange-50 hover:bg-orange-100 text-orange-700 rounded-full text-sm border border-orange-200 transition';
+                    btn.innerHTML = `<i class="fas fa-user-circle mr-1"></i>${user}`;
+                    btn.onclick = () => quickLogin(user);
+                    ui.recentUsersList.appendChild(btn);
+                });
+            } else {
+                ui.quickLoginArea.classList.add('hidden');
+            }
+        }
+
+        // --- Login & Navigation ---
+        function quickLogin(name) {
+            ui.usernameInput.value = name;
+            startQuiz();
+        }
+
+        function switchView(viewName) {
+            Object.values(views).forEach(el => el.classList.add('hidden'));
+            views[viewName].classList.remove('hidden');
+            window.scrollTo(0, 0);
+        }
+
+        function startQuiz() {
+            const name = ui.usernameInput.value.trim();
+            if (!name) {
+                alert('請輸入姓名');
+                return;
+            }
+            
+            currentState.username = name;
+            
+            // Update known users list
+            let users = JSON.parse(localStorage.getItem(getStorageKey('users')) || '[]');
+            if (!users.includes(name)) {
+                users.unshift(name); // Add to front
+                if (users.length > 5) users.pop(); // Keep max 5
+                localStorage.setItem(getStorageKey('users'), JSON.stringify(users));
+            }
+
+            // UI Update
+            ui.userDisplay.classList.remove('hidden');
+            ui.userDisplay.classList.add('flex');
+            ui.usernameSpan.textContent = name;
+            
+            // Load persistent data specific to user
+            loadUserProgress(name);
+        }
+
+        function loadUserProgress(name) {
+            // 1. Favorites (Always persistent)
+            const storedFavs = JSON.parse(localStorage.getItem(getStorageKey('favorites', name)) || '[]');
+            currentState.favorites = storedFavs;
+
+            // 2. Progress (Current Session state)
+            const savedProgress = JSON.parse(localStorage.getItem(getStorageKey('progress', name)));
+
+            if (savedProgress && !savedProgress.isFinished) {
+                // Resume session
+                const resume = confirm(`歡迎回來，${name}！\n系統發現您上次作答到第 ${savedProgress.questionIndex + 1} 題，是否繼續？`);
+                if (resume) {
+                    currentState.questionIndex = savedProgress.questionIndex;
+                    currentState.answers = savedProgress.answers || {};
+                    currentState.mistakes = savedProgress.mistakes || [];
+                    currentState.isFinished = false;
+                    switchView('quiz');
+                    loadQuestion(currentState.questionIndex);
+                    return;
+                }
+            }
+            
+            // Start New
+            resetQuizState();
+            switchView('quiz');
+            loadQuestion(0);
+        }
+
+        function resetQuizState() {
+            currentState.questionIndex = 0;
+            currentState.answers = {};
+            currentState.mistakes = [];
+            currentState.isFinished = false;
+            // Clear progress storage for fresh start
+            saveProgress(); 
+        }
+
+        function saveProgress() {
+            const data = {
+                questionIndex: currentState.questionIndex,
+                answers: currentState.answers,
+                mistakes: currentState.mistakes,
+                isFinished: currentState.isFinished,
+                timestamp: new Date().getTime()
+            };
+            localStorage.setItem(getStorageKey('progress', currentState.username), JSON.stringify(data));
+        }
+
+        function logout() {
+            if (confirm("確定要登出嗎？您的作答進度已保存。")) {
+                currentState.username = '';
+                ui.userDisplay.classList.add('hidden');
+                ui.userDisplay.classList.remove('flex');
+                ui.usernameInput.value = '';
+                renderRecentUsers();
+                switchView('login');
+            }
+        }
+        
+        function goHome() {
+            if (currentState.username) {
+               // Stay on current or alert
+            } else {
+                switchView('login');
+            }
+        }
+
+        // --- Quiz Logic ---
+        function loadQuestion(index) {
+            const q = questionsData[index];
+            ui.currentQNum.textContent = index + 1;
+            ui.qCategory.textContent = q.category;
+            ui.qText.textContent = q.question;
+            
+            // Progress Bar
+            const percent = ((index) / questionsData.length) * 100;
+            ui.progressBarFill.style.width = `${Math.max(5, percent)}%`;
+
+            // Update Favorite Icon
+            updateFavoriteIcon(q.id);
+
+            // Reset Options
+            ui.optionsContainer.innerHTML = '';
+            
+            // Check if already answered (when resuming)
+            const answeredIdx = currentState.answers[q.id];
+            
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = `option-btn w-full text-left p-4 rounded-xl border-2 border-orange-100 hover:border-orange-300 hover:bg-orange-50 transition duration-200 bg-white group flex items-center`;
+                
+                const letter = ['A','B','C','D'][idx];
+                
+                btn.innerHTML = `
+                    <span class="w-8 h-8 flex items-center justify-center rounded-full bg-orange-100 text-orange-600 font-bold mr-4 group-hover:bg-orange-500 group-hover:text-white transition-colors">${letter}</span>
+                    <span class="text-gray-700 font-medium text-lg">${opt}</span>
+                `;
+                
+                btn.onclick = () => handleAnswer(index, idx, btn);
+                ui.optionsContainer.appendChild(btn);
+            });
+
+            // Hide explanation
+            ui.explanationArea.classList.add('hidden');
+            
+            // If already answered, restore state
+            if (answeredIdx !== undefined) {
+                const buttons = ui.optionsContainer.querySelectorAll('button');
+                buttons.forEach((b, i) => {
+                    b.disabled = true;
+                    if (i === answeredIdx) {
+                        if (i === q.answer) {
+                            b.classList.remove('bg-white', 'border-orange-100');
+                            b.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                            b.querySelector('span').classList.add('bg-green-500', 'text-white');
+                        } else {
+                            b.classList.remove('bg-white', 'border-orange-100');
+                            b.classList.add('bg-red-50', 'border-red-500', 'text-red-800');
+                            b.querySelector('span').classList.add('bg-red-500', 'text-white');
+                        }
+                    } else if (i === q.answer) {
+                        b.classList.remove('bg-white', 'border-orange-100');
+                        b.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                        b.querySelector('span').classList.add('bg-green-500', 'text-white');
+                    }
+                });
+                
+                // Show explanation
+                const isCorrect = answeredIdx === q.answer;
+                ui.feedbackIcon.className = isCorrect ? "fas fa-check-circle text-green-500 text-2xl" : "fas fa-times-circle text-red-500 text-2xl";
+                ui.feedbackTitle.textContent = isCorrect ? "答對了！" : "答錯了！";
+                ui.feedbackTitle.className = isCorrect ? "text-lg font-bold text-green-700 mb-2" : "text-lg font-bold text-red-700 mb-2";
+                ui.feedbackText.textContent = q.explanation;
+                ui.explanationArea.classList.remove('hidden');
+            }
+        }
+
+        function handleAnswer(qIndex, selectedIdx, btnElement) {
+            // Disable all buttons
+            const buttons = ui.optionsContainer.querySelectorAll('button');
+            buttons.forEach(b => b.disabled = true);
+
+            const q = questionsData[qIndex];
+            const isCorrect = selectedIdx === q.answer;
+            const letterSpan = btnElement.querySelector('span');
+            
+            // Style selection
+            if (isCorrect) {
+                btnElement.classList.remove('bg-white', 'border-orange-100');
+                btnElement.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                letterSpan.classList.remove('bg-orange-100', 'text-orange-600');
+                letterSpan.classList.add('bg-green-500', 'text-white');
+                
+                ui.feedbackIcon.className = "fas fa-check-circle text-green-500 text-2xl";
+                ui.feedbackTitle.textContent = "答對了！";
+                ui.feedbackTitle.className = "text-lg font-bold text-green-700 mb-2";
+            } else {
+                btnElement.classList.remove('bg-white', 'border-orange-100');
+                btnElement.classList.add('bg-red-50', 'border-red-500', 'text-red-800');
+                letterSpan.classList.remove('bg-orange-100', 'text-orange-600');
+                letterSpan.classList.add('bg-red-500', 'text-white');
+                
+                // Highlight correct answer
+                const correctBtn = buttons[q.answer];
+                correctBtn.classList.remove('bg-white', 'border-orange-100');
+                correctBtn.classList.add('bg-green-50', 'border-green-500', 'text-green-800');
+                correctBtn.querySelector('span').classList.add('bg-green-500', 'text-white');
+
+                ui.feedbackIcon.className = "fas fa-times-circle text-red-500 text-2xl";
+                ui.feedbackTitle.textContent = "答錯了！";
+                ui.feedbackTitle.className = "text-lg font-bold text-red-700 mb-2";
+                
+                // Record mistake
+                if (!currentState.mistakes.includes(q.id)) {
+                    currentState.mistakes.push(q.id);
+                }
+            }
+
+            // Save state
+            currentState.answers[q.id] = selectedIdx;
+            saveProgress();
+
+            // Show explanation
+            ui.feedbackText.textContent = q.explanation;
+            ui.explanationArea.classList.remove('hidden');
+            
+            // Scroll to explanation
+            ui.explanationArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function nextQuestion() {
+            currentState.questionIndex++;
+            saveProgress(); 
+            
+            if (currentState.questionIndex < questionsData.length) {
+                loadQuestion(currentState.questionIndex);
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            currentState.isFinished = true;
+            saveProgress();
+            
+            // Calculate Score
+            let correctCount = 0;
+            questionsData.forEach(q => {
+                if (currentState.answers[q.id] === q.answer) {
+                    correctCount++;
+                }
+            });
+            const score = Math.round((correctCount / questionsData.length) * 100);
+            
+            // Update UI
+            ui.resultScore.textContent = score;
+            ui.resultCorrect.textContent = correctCount;
+            ui.resultWrong.textContent = questionsData.length - correctCount;
+            
+            switchView('result');
+        }
+
+        function restartQuiz() {
+            resetQuizState();
+            startQuiz();
+        }
+
+        // --- Favorites Logic ---
+        function toggleFavorite() {
+            const currentQ = questionsData[currentState.questionIndex];
+            const id = currentQ.id;
+            
+            const index = currentState.favorites.indexOf(id);
+            if (index === -1) {
+                currentState.favorites.push(id);
+            } else {
+                currentState.favorites.splice(index, 1);
+            }
+            
+            // Persist favorites
+            localStorage.setItem(getStorageKey('favorites', currentState.username), JSON.stringify(currentState.favorites));
+            
+            updateFavoriteIcon(id);
+        }
+
+        function updateFavoriteIcon(id) {
+            const icon = ui.btnFavorite.querySelector('i');
+            if (currentState.favorites.includes(id)) {
+                icon.className = "fas fa-star text-2xl text-amber-500";
+                ui.btnFavorite.classList.add('text-amber-500');
+                ui.btnFavorite.classList.remove('text-gray-300');
+            } else {
+                icon.className = "far fa-star text-2xl";
+                ui.btnFavorite.classList.remove('text-amber-500');
+                ui.btnFavorite.classList.add('text-gray-300');
+            }
+        }
+
+        // --- Review Logic ---
+        function showReview(type) {
+            const ids = type === 'wrong' ? currentState.mistakes : currentState.favorites;
+            ui.reviewTitle.textContent = type === 'wrong' ? '錯題本' : '我的最愛';
+            
+            ui.reviewList.innerHTML = '';
+            
+            if (ids.length === 0) {
+                ui.reviewList.innerHTML = `
+                    <div class="text-center py-10 bg-white rounded-xl shadow-sm border border-orange-100">
+                        <i class="far fa-folder-open text-4xl text-gray-300 mb-3"></i>
+                        <p class="text-gray-500">目前沒有紀錄。</p>
+                    </div>`;
+            } else {
+                ids.forEach(id => {
+                    const q = questionsData.find(item => item.id === id);
+                    if (!q) return;
+
+                    const item = document.createElement('div');
+                    item.className = 'bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition';
+                    
+                    const optionsHtml = q.options.map((opt, idx) => {
+                        const isCorrect = idx === q.answer;
+                        const userSelectedIdx = currentState.answers[q.id];
+                        const isUserSelected = userSelectedIdx === idx;
+                        
+                        let classStr = "ml-3 p-3 rounded-lg border flex items-center ";
+                        let icon = "";
+                        
+                        if (isCorrect) {
+                            classStr += "bg-green-50 border-green-200 text-green-800 font-bold";
+                            icon = '<i class="fas fa-check text-green-600 mr-2"></i>';
+                        } else if (isUserSelected && !isCorrect) {
+                            classStr += "bg-red-50 border-red-200 text-red-800 line-through opacity-75";
+                            icon = '<i class="fas fa-times text-red-600 mr-2"></i>';
+                        } else {
+                            classStr += "border-transparent text-gray-500";
+                            icon = '<span class="w-6 inline-block"></span>';
+                        }
+                        
+                        return `<div class="${classStr}">${icon} ${['A','B','C','D'][idx]}. ${opt}</div>`;
+                    }).join('');
+
+                    item.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-md font-bold">${q.category}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-300 text-xs">#${q.id}</span>
+                            </div>
+                        </div>
+                        <p class="font-bold text-lg mb-4 text-gray-800">${q.question}</p>
+                        <div class="space-y-2 mb-4 text-sm">
+                            ${optionsHtml}
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg text-sm text-gray-700 border border-amber-100 leading-relaxed">
+                            <span class="font-bold text-orange-600"><i class="fas fa-lightbulb mr-1"></i>解析：</span> ${q.explanation}
+                        </div>
+                    `;
+                    ui.reviewList.appendChild(item);
+                });
+            }
+            
+            switchView('review');
+        }
+
+        function backToResult() {
+            switchView('result');
+        }
+
+        function clearData() {
+            if(confirm("警告：這將會清除「這台裝置」上所有使用者的作答紀錄、錯題本與最愛清單，且無法復原。\n\n確定要執行嗎？")) {
+                Object.keys(localStorage).forEach(key => {
+                    if(key.startsWith(DB_PREFIX)) localStorage.removeItem(key);
+                });
+                location.reload();
+            }
+        }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
