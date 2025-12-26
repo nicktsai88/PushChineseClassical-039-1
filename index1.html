@@ -46,15 +46,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #f97316;
         }
-
-        /* Card background transitions */
-        .card-neutral { background-color: white; border-color: #f3f4f6; }
-        .card-correct { background-color: #ecfdf5; border-color: #34d399; } /* green-50, green-400 */
-        .card-wrong { background-color: #fef2f2; border-color: #f87171; } /* red-50, red-400 */
-        
-        .transition-colors-slow {
-            transition: background-color 0.5s ease, border-color 0.5s ease;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col text-gray-800 selection:bg-orange-200">
@@ -112,11 +103,6 @@
                         開始測驗 <i class="fas fa-arrow-right ml-1"></i>
                     </button>
 
-                    <!-- New Button: All Questions Review -->
-                    <button onclick="showAllQuestions()" class="w-full bg-white border-2 border-orange-200 text-orange-600 hover:bg-orange-50 py-3 px-4 rounded-lg transition duration-200 font-bold shadow-sm hover:shadow-md flex items-center justify-center">
-                        <i class="fas fa-list-ul mr-2"></i> 題目一覽表 (快速刷題)
-                    </button>
-
                     <!-- Quick Login Section -->
                     <div id="quick-login-area" class="hidden pt-4 border-t border-gray-100">
                         <p class="text-xs text-gray-500 mb-3 font-medium">快速登入（最近使用）</p>
@@ -154,7 +140,7 @@
             </div>
 
             <!-- Question Card -->
-            <div id="question-card" class="card-neutral rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6 border border-gray-100">
                 <div class="p-6 md:p-8">
                     <div class="mb-6">
                         <span class="inline-block bg-orange-100 text-orange-700 text-xs px-2.5 py-1 rounded-md font-bold mb-3 tracking-wide" id="q-category">字義</span>
@@ -168,14 +154,14 @@
                 </div>
                 
                 <!-- Explanation Area -->
-                <div id="explanation-area" class="hidden bg-white/50 border-t border-gray-100 p-6 md:p-8 backdrop-blur-sm">
+                <div id="explanation-area" class="hidden bg-amber-50 border-t border-amber-100 p-6 md:p-8">
                     <div class="flex items-start">
                         <div class="flex-shrink-0 mt-1">
                             <i id="feedback-icon" class="fas fa-check-circle text-green-500 text-2xl"></i>
                         </div>
                         <div class="ml-4 w-full">
                             <h4 class="text-lg font-bold text-gray-900 mb-2" id="feedback-title">答對了！</h4>
-                            <div class="text-gray-700 text-base leading-relaxed mb-6 bg-white p-4 rounded-lg border border-gray-200 shadow-sm" id="feedback-text">
+                            <div class="text-gray-700 text-base leading-relaxed mb-6 bg-white p-4 rounded-lg border border-amber-100 shadow-sm" id="feedback-text">
                                 解析內容...
                             </div>
                             <button onclick="nextQuestion()" class="w-full sm:w-auto bg-orange-600 text-white px-8 py-3 rounded-lg hover:bg-orange-700 transition shadow font-medium flex items-center justify-center">
@@ -227,17 +213,17 @@
             </div>
         </div>
 
-        <!-- View: Review List / All Questions -->
+        <!-- View: Review List -->
         <div id="view-review" class="hidden fade-in">
-            <div class="flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm sticky top-20 z-40 border border-orange-100">
+            <div class="flex items-center justify-between mb-6 bg-white p-4 rounded-xl shadow-sm">
                 <div class="flex items-center gap-3">
                     <div class="bg-orange-100 p-2 rounded-lg">
                         <i class="fas fa-book-open text-orange-600"></i>
                     </div>
                     <h2 class="text-xl font-bold text-gray-800" id="review-title">錯題本</h2>
                 </div>
-                <button onclick="backToHomeOrResult()" class="text-gray-500 hover:text-orange-600 font-bold transition flex items-center bg-gray-50 px-3 py-2 rounded-lg hover:bg-orange-50">
-                    <i class="fas fa-arrow-left mr-2"></i> 返回
+                <button onclick="backToResult()" class="text-gray-500 hover:text-orange-600 font-bold transition flex items-center bg-gray-50 px-3 py-2 rounded-lg hover:bg-orange-50">
+                    <i class="fas fa-arrow-left mr-2"></i> 返回成績單
                 </button>
             </div>
             <div id="review-list" class="space-y-6 pb-10">
@@ -256,9 +242,20 @@
 
     <script>
         // --- Data Configuration ---
+        // 使用新的 Prefix 區隔不同篇章
         const DB_PREFIX = 'ChineseClassicalQuiz-039-';
         
         // --- Questions Data (穿胸國) ---
+        // 內容來源：李汝珍《鏡花緣》
+        /*
+          走了幾日，過了穿胸國。林之洋道：「俺聞人心生在正中。今穿胸國胸都穿通，他心生在什麼地方？」
+          多九公道：「老夫聞他們胸前當日原是好好的；後來因他們行為不正，每每遇事把眉頭一皺，心就歪在一邊，或偏在一邊。
+          今日也歪，明日也偏，漸漸心離本位，胸無主宰。因此前心生一大疔，名叫『歪心疔』，後心生一大疽，名叫『偏心疽』：日漸潰爛。
+          久而久之，前後相通，醫藥無效。虧得有一祝由科用符咒將『中山狼』、『波斯狗』的心肺取來補那患處。
+          過了幾時，病雖醫好，誰知這狼的心，狗的肺，也是歪在一邊、偏在一邊的，任他醫治，胸前竟難復舊，所以至今仍是一個大洞。」
+          林之洋：「原來狼心狗肺都是又歪又偏的！」
+        */
+
         const questionsData = [
             {
                 id: 1,
@@ -614,7 +611,6 @@
             currentQNum: document.getElementById('current-question-num'),
             progressBarFill: document.getElementById('progress-bar-fill'),
             btnFavorite: document.getElementById('btn-favorite'),
-            questionCard: document.getElementById('question-card'), // NEW
             qCategory: document.getElementById('q-category'),
             qText: document.getElementById('q-text'),
             optionsContainer: document.getElementById('options-container'),
@@ -631,9 +627,8 @@
 
         // --- Storage Helpers ---
         function getStorageKey(type, username) {
-            // Updated logic: Mistakes and Favorites are tied to username but separate from session progress
             if (username) return DB_PREFIX + type + '-' + username;
-            return DB_PREFIX + type; 
+            return DB_PREFIX + type; // Global or list keys
         }
 
         // --- Initialization ---
@@ -693,20 +688,25 @@
             ui.userDisplay.classList.add('flex');
             ui.usernameSpan.textContent = name;
             
-            // Load Persistent Data
-            loadUserPersistentData(name);
+            // Load persistent data specific to user
+            loadUserProgress(name);
+        }
 
-            // Check Session Progress
+        function loadUserProgress(name) {
+            // 1. Favorites (Always persistent)
+            const storedFavs = JSON.parse(localStorage.getItem(getStorageKey('favorites', name)) || '[]');
+            currentState.favorites = storedFavs;
+
+            // 2. Progress (Current Session state)
             const savedProgress = JSON.parse(localStorage.getItem(getStorageKey('progress', name)));
+
             if (savedProgress && !savedProgress.isFinished) {
                 // Resume session
                 const resume = confirm(`歡迎回來，${name}！\n系統發現您上次作答到第 ${savedProgress.questionIndex + 1} 題，是否繼續？`);
                 if (resume) {
                     currentState.questionIndex = savedProgress.questionIndex;
                     currentState.answers = savedProgress.answers || {};
-                    // Note: Mistakes in session are loaded from persistent data now, 
-                    // but we can also respect session specific state if needed. 
-                    // Here we simplify: mistakes are always cumulative from persistence.
+                    currentState.mistakes = savedProgress.mistakes || [];
                     currentState.isFinished = false;
                     switchView('quiz');
                     loadQuestion(currentState.questionIndex);
@@ -714,27 +714,18 @@
                 }
             }
             
-            // Start New Session
+            // Start New
             resetQuizState();
             switchView('quiz');
             loadQuestion(0);
         }
 
-        function loadUserPersistentData(name) {
-            // Load Favorites (Persistent)
-            const storedFavs = JSON.parse(localStorage.getItem(getStorageKey('favorites', name)) || '[]');
-            currentState.favorites = storedFavs;
-
-            // Load Mistakes (Persistent) - NEW Logic
-            const storedMistakes = JSON.parse(localStorage.getItem(getStorageKey('mistakes', name)) || '[]');
-            currentState.mistakes = storedMistakes;
-        }
-
         function resetQuizState() {
             currentState.questionIndex = 0;
             currentState.answers = {};
+            currentState.mistakes = [];
             currentState.isFinished = false;
-            // Note: We DO NOT reset mistakes or favorites here anymore
+            // Clear progress storage for fresh start
             saveProgress(); 
         }
 
@@ -742,20 +733,15 @@
             const data = {
                 questionIndex: currentState.questionIndex,
                 answers: currentState.answers,
+                mistakes: currentState.mistakes,
                 isFinished: currentState.isFinished,
                 timestamp: new Date().getTime()
             };
             localStorage.setItem(getStorageKey('progress', currentState.username), JSON.stringify(data));
         }
 
-        function savePersistentData() {
-            if(!currentState.username) return;
-            localStorage.setItem(getStorageKey('favorites', currentState.username), JSON.stringify(currentState.favorites));
-            localStorage.setItem(getStorageKey('mistakes', currentState.username), JSON.stringify(currentState.mistakes));
-        }
-
         function logout() {
-            if (confirm("確定要登出嗎？您的作答進度與錯題本已保存。")) {
+            if (confirm("確定要登出嗎？您的作答進度已保存。")) {
                 currentState.username = '';
                 ui.userDisplay.classList.add('hidden');
                 ui.userDisplay.classList.remove('flex');
@@ -768,16 +754,6 @@
         function goHome() {
             if (currentState.username) {
                // Stay on current or alert
-            } else {
-                switchView('login');
-            }
-        }
-        
-        function backToHomeOrResult() {
-            if(currentState.isFinished) {
-                switchView('result');
-            } else if (currentState.username) {
-                switchView('login'); // From All Questions view back to Login if not started
             } else {
                 switchView('login');
             }
@@ -796,9 +772,6 @@
 
             // Update Favorite Icon
             updateFavoriteIcon(q.id);
-
-            // Reset Card Style
-            ui.questionCard.className = "card-neutral rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow";
 
             // Reset Options
             ui.optionsContainer.innerHTML = '';
@@ -824,15 +797,8 @@
             // Hide explanation
             ui.explanationArea.classList.add('hidden');
             
-            // If already answered, restore visual state
+            // If already answered, restore state
             if (answeredIdx !== undefined) {
-                const isCorrect = answeredIdx === q.answer;
-                
-                // Set Card Color
-                ui.questionCard.className = isCorrect 
-                    ? "card-correct rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow"
-                    : "card-wrong rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow";
-
                 const buttons = ui.optionsContainer.querySelectorAll('button');
                 buttons.forEach((b, i) => {
                     b.disabled = true;
@@ -854,6 +820,7 @@
                 });
                 
                 // Show explanation
+                const isCorrect = answeredIdx === q.answer;
                 ui.feedbackIcon.className = isCorrect ? "fas fa-check-circle text-green-500 text-2xl" : "fas fa-times-circle text-red-500 text-2xl";
                 ui.feedbackTitle.textContent = isCorrect ? "答對了！" : "答錯了！";
                 ui.feedbackTitle.className = isCorrect ? "text-lg font-bold text-green-700 mb-2" : "text-lg font-bold text-red-700 mb-2";
@@ -871,11 +838,6 @@
             const isCorrect = selectedIdx === q.answer;
             const letterSpan = btnElement.querySelector('span');
             
-            // Card Color Feedback
-            ui.questionCard.className = isCorrect 
-                ? "card-correct rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow"
-                : "card-wrong rounded-2xl shadow-lg overflow-hidden mb-6 border transition-colors-slow";
-
             // Style selection
             if (isCorrect) {
                 btnElement.classList.remove('bg-white', 'border-orange-100');
@@ -902,10 +864,9 @@
                 ui.feedbackTitle.textContent = "答錯了！";
                 ui.feedbackTitle.className = "text-lg font-bold text-red-700 mb-2";
                 
-                // Record mistake persistently
+                // Record mistake
                 if (!currentState.mistakes.includes(q.id)) {
                     currentState.mistakes.push(q.id);
-                    savePersistentData(); // SAVE IMMEDIATELY
                 }
             }
 
@@ -936,7 +897,7 @@
             currentState.isFinished = true;
             saveProgress();
             
-            // Calculate Score (Session only)
+            // Calculate Score
             let correctCount = 0;
             questionsData.forEach(q => {
                 if (currentState.answers[q.id] === q.answer) {
@@ -971,7 +932,7 @@
             }
             
             // Persist favorites
-            savePersistentData();
+            localStorage.setItem(getStorageKey('favorites', currentState.username), JSON.stringify(currentState.favorites));
             
             updateFavoriteIcon(id);
         }
@@ -989,24 +950,11 @@
             }
         }
 
-        // --- Review & All Questions Logic ---
+        // --- Review Logic ---
         function showReview(type) {
             const ids = type === 'wrong' ? currentState.mistakes : currentState.favorites;
-            ui.reviewTitle.textContent = type === 'wrong' ? '錯題本 (歷史累計)' : '我的最愛';
+            ui.reviewTitle.textContent = type === 'wrong' ? '錯題本' : '我的最愛';
             
-            renderQuestionList(ids, true);
-            switchView('review');
-        }
-
-        function showAllQuestions() {
-            ui.reviewTitle.textContent = '題目一覽表';
-            // Create array of all IDs
-            const allIds = questionsData.map(q => q.id);
-            renderQuestionList(allIds, false);
-            switchView('review');
-        }
-
-        function renderQuestionList(ids, showUserStatus) {
             ui.reviewList.innerHTML = '';
             
             if (ids.length === 0) {
@@ -1015,63 +963,56 @@
                         <i class="far fa-folder-open text-4xl text-gray-300 mb-3"></i>
                         <p class="text-gray-500">目前沒有紀錄。</p>
                     </div>`;
-                return;
-            }
+            } else {
+                ids.forEach(id => {
+                    const q = questionsData.find(item => item.id === id);
+                    if (!q) return;
 
-            ids.forEach(id => {
-                const q = questionsData.find(item => item.id === id);
-                if (!q) return;
+                    const item = document.createElement('div');
+                    item.className = 'bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition';
+                    
+                    const optionsHtml = q.options.map((opt, idx) => {
+                        const isCorrect = idx === q.answer;
+                        const userSelectedIdx = currentState.answers[q.id];
+                        const isUserSelected = userSelectedIdx === idx;
+                        
+                        let classStr = "ml-3 p-3 rounded-lg border flex items-center ";
+                        let icon = "";
+                        
+                        if (isCorrect) {
+                            classStr += "bg-green-50 border-green-200 text-green-800 font-bold";
+                            icon = '<i class="fas fa-check text-green-600 mr-2"></i>';
+                        } else if (isUserSelected && !isCorrect) {
+                            classStr += "bg-red-50 border-red-200 text-red-800 line-through opacity-75";
+                            icon = '<i class="fas fa-times text-red-600 mr-2"></i>';
+                        } else {
+                            classStr += "border-transparent text-gray-500";
+                            icon = '<span class="w-6 inline-block"></span>';
+                        }
+                        
+                        return `<div class="${classStr}">${icon} ${['A','B','C','D'][idx]}. ${opt}</div>`;
+                    }).join('');
 
-                const item = document.createElement('div');
-                item.className = 'bg-white p-6 rounded-xl shadow-sm border border-orange-100 hover:shadow-md transition';
-                
-                const optionsHtml = q.options.map((opt, idx) => {
-                    const isCorrect = idx === q.answer;
-                    
-                    // Logic for displaying user selection vs just correct answer
-                    let userSelectedIdx = -1;
-                    if (showUserStatus) {
-                         userSelectedIdx = currentState.answers[q.id];
-                    }
-                    const isUserSelected = userSelectedIdx === idx;
-                    
-                    let classStr = "ml-3 p-3 rounded-lg border flex items-center ";
-                    let icon = "";
-                    
-                    if (isCorrect) {
-                        // Correct Answer always green
-                        classStr += "bg-green-100 border-green-300 text-green-900 font-bold";
-                        icon = '<i class="fas fa-check text-green-700 mr-2"></i>';
-                    } else if (isUserSelected && !isCorrect) {
-                        // Wrong User selection red
-                        classStr += "bg-red-50 border-red-200 text-red-800 line-through opacity-75";
-                        icon = '<i class="fas fa-times text-red-600 mr-2"></i>';
-                    } else {
-                        // Neutral
-                        classStr += "border-transparent text-gray-500";
-                        icon = '<span class="w-6 inline-block"></span>';
-                    }
-                    
-                    return `<div class="${classStr}">${icon} ${['A','B','C','D'][idx]}. ${opt}</div>`;
-                }).join('');
-
-                item.innerHTML = `
-                    <div class="flex justify-between items-start mb-3">
-                        <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-md font-bold">${q.category}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-300 text-xs">#${q.id}</span>
+                    item.innerHTML = `
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-md font-bold">${q.category}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-gray-300 text-xs">#${q.id}</span>
+                            </div>
                         </div>
-                    </div>
-                    <p class="font-bold text-lg mb-4 text-gray-800">${q.question}</p>
-                    <div class="space-y-2 mb-4 text-sm">
-                        ${optionsHtml}
-                    </div>
-                    <div class="bg-amber-50 p-4 rounded-lg text-sm text-gray-700 border border-amber-100 leading-relaxed">
-                        <span class="font-bold text-orange-600"><i class="fas fa-lightbulb mr-1"></i>解析：</span> ${q.explanation}
-                    </div>
-                `;
-                ui.reviewList.appendChild(item);
-            });
+                        <p class="font-bold text-lg mb-4 text-gray-800">${q.question}</p>
+                        <div class="space-y-2 mb-4 text-sm">
+                            ${optionsHtml}
+                        </div>
+                        <div class="bg-amber-50 p-4 rounded-lg text-sm text-gray-700 border border-amber-100 leading-relaxed">
+                            <span class="font-bold text-orange-600"><i class="fas fa-lightbulb mr-1"></i>解析：</span> ${q.explanation}
+                        </div>
+                    `;
+                    ui.reviewList.appendChild(item);
+                });
+            }
+            
+            switchView('review');
         }
 
         function backToResult() {
